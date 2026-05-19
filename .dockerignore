@@ -1,0 +1,15 @@
+.git/
+.gitignore
+*.ipynb
+.ipynb_checkpoints/
+*.csv
+*.zip
+__pycache__/
+*.pyc
+churn_env/
+venv/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+reports/

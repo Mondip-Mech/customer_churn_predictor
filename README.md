@@ -1,6 +1,18 @@
+---
+title: Customer Churn Predictor
+emoji: 📡
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+pinned: false
+---
+
 # 📉 Customer Churn Prediction — MLOps Pipeline
 
-> **End-to-end MLOps project**: Telecom customer churn prediction with ensemble ML, SHAP explainability, SMOTE rebalancing, threshold optimisation, FastAPI serving, automated CI/CD, and MLflow experiment tracking — all containerised with Docker.
+> **End-to-end MLOps project**: Telecom customer churn prediction with ensemble ML, SHAP explainability, SMOTE rebalancing, threshold optimisation, FastAPI serving, automated CI/CD, and MLflow experiment tracking — containerised with Docker and deployed to HuggingFace Spaces.
+
+[![HuggingFace Space](https://img.shields.io/badge/🤗%20HuggingFace-Live%20Demo-blue)](https://huggingface.co/spaces/Mechscientist26/customer-churn-predictor)
+[![CI/CD](https://github.com/Mondip-Mech/customer_churn_predictor/actions/workflows/ci.yml/badge.svg)](https://github.com/Mondip-Mech/customer_churn_predictor/actions/workflows/ci.yml)
 
 ---
 
@@ -234,17 +246,24 @@ pytest tests/ -v
 
 ---
 
-## 🔄 CI/CD Pipeline (GitHub Actions)
+## 🔄 CI/CD Pipeline (GitHub → HuggingFace Spaces)
 
-On every push to `main`:
+Every push to `main` triggers the full pipeline automatically:
 
 ```
 Push to main
     │
-    ├── Test job        →  pytest tests/ (schema + API)
-    ├── Lint job        →  ruff check api/ tests/
-    └── Docker build    →  builds Streamlit + FastAPI images
+    ├── Test job     →  pytest tests/ (schema + API)
+    ├── Lint job     →  ruff check api/ tests/
+    └── Deploy job   →  git push → HuggingFace Spaces (auto Docker build)
 ```
+
+HuggingFace picks up the new commit, rebuilds the Docker image, and re-serves the app — zero manual steps after the initial setup.
+
+**One-time setup — add `HF_TOKEN` to GitHub secrets:**
+1. Generate a token at [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens) (role: **Write**)
+2. In your GitHub repo → **Settings → Secrets → Actions** → **New secret**
+3. Name: `HF_TOKEN`, Value: your token
 
 See `.github/workflows/ci.yml`
 
@@ -296,9 +315,16 @@ customer_churn_predictor/
 
 ---
 
-## ⚙️ Run Locally
+## 🚀 Deployment
 
-### Streamlit App
+### Live on HuggingFace Spaces
+The app is deployed automatically via GitHub Actions on every push to `main`.
+
+👉 **[huggingface.co/spaces/Mechscientist26/customer-churn-predictor](https://huggingface.co/spaces/Mechscientist26/customer-churn-predictor)**
+
+### Run Locally
+
+**Streamlit App**
 ```bash
 git clone https://github.com/Mondip-Mech/customer_churn_predictor.git
 cd customer_churn_predictor
@@ -307,13 +333,20 @@ streamlit run app.py
 # http://localhost:8501
 ```
 
-### FastAPI Service
+**FastAPI Service**
 ```bash
 uvicorn api.main:app --reload --port 8000
 # http://localhost:8000/docs
 ```
 
-### Everything together (Docker Compose)
+**Docker (local)**
+```bash
+docker build -t churn-predictor .
+docker run -p 7860:7860 churn-predictor
+# http://localhost:7860
+```
+
+**Everything together (Docker Compose)**
 ```bash
 docker-compose up
 # API:       http://localhost:8000/docs

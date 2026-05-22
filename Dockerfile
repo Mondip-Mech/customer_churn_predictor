@@ -1,23 +1,31 @@
-FROM python:3.10-slim
+FROM python:3.11-slim
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
 
 WORKDIR /app
 
+# System deps for matplotlib + SHAP
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libgl1 \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
 COPY app.py config.py ./
-COPY final_churn_model.pkl .
+COPY final_churn_model.pkl background_data.pkl ./
 COPY metrics/ ./metrics/
 
-# Copy background data if available (needed for SHAP)
-COPY background_data.pkl* ./
+# HuggingFace Spaces convention is port 7860
+EXPOSE 7860
 
-EXPOSE 8501
-
-HEALTHCHECK --interval=30s --timeout=10s --start-period=30s \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8501/_stcore/health')"
-
-ENTRYPOINT ["python", "-m", "streamlit", "run", "app.py", \
-            "--server.port=8501", \
-            "--server.address=0.0.0.0", \
-            "--server.headless=true"]
+CMD ["streamlit", "run", "app.py", \
+     "--server.address=0.0.0.0", \
+     "--server.port=7860", \
+     "--server.headless=true", \
+     "--server.enableCORS=false", \
+     "--server.enableXsrfProtection=false"]

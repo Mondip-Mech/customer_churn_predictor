@@ -103,5 +103,4 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          git remote add hf https://Mechscientist26:$HF_TOKEN@huggingface.co/spaces/Mechscientist26/customer-churn-predictor
-          git push hf main --force
+          git push https://Mechscientist26:${HF_TOKEN}@huggingface.co/spaces/Mechscientist26/customer-churn-predictor main --force

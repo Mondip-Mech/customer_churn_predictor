@@ -32,3 +32,6 @@ predictions.db
 # Secrets
 *.env
 .env*
+
+# Claude Code worktrees (not part of the project)
+.claude/

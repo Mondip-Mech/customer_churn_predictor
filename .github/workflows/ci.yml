@@ -103,6 +103,25 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          git config --global credential.helper store
-          printf 'https://Mechscientist26:%s@huggingface.co\n' "${HF_TOKEN}" >> ~/.git-credentials
-          git push https://huggingface.co/spaces/Mechscientist26/customer-churn-predictor main --force
+          pip install huggingface_hub
+          python - <<'EOF'
+          import os
+          from huggingface_hub import HfApi
+
+          api = HfApi(token=os.environ["HF_TOKEN"])
+          api.upload_folder(
+              folder_path=".",
+              repo_id="Mechscientist26/customer-churn-predictor",
+              repo_type="space",
+              # Upload only what the Dockerfile needs — nothing else
+              allow_patterns=[
+                  "README.md",
+                  "Dockerfile",
+                  "requirements.txt",
+                  "app.py",
+                  "config.py",
+                  "*.pkl",
+                  "metrics/**",
+              ],
+          )
+          EOF
